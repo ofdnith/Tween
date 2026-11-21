@@ -68,7 +68,7 @@ não o valor real.
 | Data | Tamanho | p50 | p95 | máx | GPU p50 | Pior janela | Térmico final | Veredito |
 |---|---|---|---|---|---|---|---|---|
 | 2026-11-21 | 1280×720 | 6,8 | 13,2 | 21,6 | ver nota | 14,3 | fair | CABE |
-| 2026-11-21 | 1920×1080 | | | | | | | não mediu: "o interpolador não produz saída neste tamanho" |
+| 2026-11-21 | 1920×1080 | | | | | | | sem saída neste Mac (ver nota) |
 
 Notas da medição de 2026-11-21 (MacBook Air M2, Mac14,15, 8 GB, macOS 26.5.2, Xcode 26.6, Modo Pouca
 Energia desligado):
@@ -77,8 +77,10 @@ Energia desligado):
 - A primeira janela de 10 s teve p95 de 14,3 ms; depois dela o p95 ficou entre 7,4 e 11,8 ms.
 - A coluna GPU p50 deu 0,0 ms. O bench mede o command buffer que entrega ao interpolador, e o
   trabalho do interpolador não aparece nele. Enquanto isso não for corrigido, ignore a coluna.
-- 1080p rodou depois de 720p no mesmo processo e não gerou saída. Falta repetir só em 1080p (scheme
-  `InterpBench-1080p`) para saber se é limite do Air M2 ou efeito de rodar as duas sessões em seguida.
+- 1080p não gera saída neste Mac: o resultado foi o mesmo rodando depois de 720p e rodando sozinho
+  (scheme `InterpBench-1080p`). O interpolador aceita a sessão em 1920×1080, mas deixa o quadro de
+  destino vazio. No app, isso é o caso de "tamanho sem suporte": o modo Full cai no caminho direto,
+  sem geração. No Air M2 só existe o modo Fast (720p).
 - Dados brutos: `docs/medicoes/bench.csv`.
 
 ### Teste térmico de 30 minutos

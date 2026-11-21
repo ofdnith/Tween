@@ -1,8 +1,7 @@
 # Perfil do MacBook Air M2
 
 O que muda no projeto por causa da máquina alvo, e por quê. Os números marcados como "Clarion" foram
-medidos pelo autor original em um MacBook com M3. Os do Air M2 ainda não existem: a etapa 1 serve
-para medi-los.
+medidos pelo autor original em um MacBook com M3. Os do Air M2 foram medidos na etapa 1, em 2026-11-21 (`docs/MEDICAO.md`).
 
 ## A máquina
 
@@ -20,14 +19,19 @@ quadro intermediário e desenhar dois quadros (o gerado e o real).
 
 | Trabalho por par de quadros | Clarion, M3 | Air M2 |
 |---|---|---|
-| Quadro intermediário em 720p (Fast) | cerca de 10 ms | a medir |
-| Quadro intermediário em 1080p (Full) | cerca de 21 ms | a medir |
+| Quadro intermediário em 720p (Fast) | cerca de 10 ms | 6,8 ms (p50), 13,2 ms (p95) |
+| Quadro intermediário em 1080p (Full) | cerca de 21 ms | o interpolador não gera saída |
 | GPU total por quadro, Fast | cerca de 12 ms | a medir |
 | GPU total por quadro, Full com MetalFX | cerca de 23 ms | a medir |
 
 Se o M2 for de 20% a 40% mais lento que o M3 (estimativa, não medição), o modo Fast fica entre 12 e
 17 ms e cabe com folga, e o modo Full fica entre 25 e 32 ms, no limite dos 33,3 ms e sem margem para
 aquecimento. Por isso o perfil do Air é o modo Fast.
+
+Medido em 2026-11-21: o modo Fast ficou abaixo da estimativa (p95 de 13,2 ms em 60 s e pior janela
+de 15,3 ms em 30 minutos), e o modo Full não existe neste Mac, porque o interpolador não escreve
+saída em 1920×1080. A etapa 5 deve esconder ou desabilitar a opção Full quando o tamanho não tiver
+suporte, em vez de deixar a geração parar em silêncio.
 
 Usar 720p para o quadro intermediário custa pouco na imagem por dois motivos: o Series S renderiza o
 jogo em 720p por dentro, e o Tween mantém da imagem real os pixels que não se movem (HUD, texto,
