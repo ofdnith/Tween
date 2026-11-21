@@ -73,7 +73,7 @@ A interface ainda está em inglês, herdada do Clarion.
 
 ## Créditos
 
-O código de captura, renderização, interpolação, upscaling, gravação e transmissão vem do
+O código de captura, renderização, interpolação, upscaling e gravação vem do
 [Clarion](https://github.com/ashenknight-afk/Clarion), de ashenknight-afk, sob licença MIT, a partir
 do commit `fa00201` (versão 0.2.0). O ícone também é o do Clarion e deve ser trocado.
 

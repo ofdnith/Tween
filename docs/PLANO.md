@@ -57,21 +57,29 @@ investigar; não bloqueia, porque o padrão é 720p. Pelo Xcode, o bench roda pe
 **Segue se:** 60 fps de saída e LAT até 85 ms.
 **Se não:** investigar com as notas de `docs/upstream/CLARION-NOTES.md` antes de mudar o renderizador.
 
-### Etapa 4: enxugar o que não é do Tween
+### Etapa 4: enxugar o que não é do Tween (em andamento, branch `etapa-4-enxugar`)
 
-Com o compilador disponível, remover o que o projeto não usa. Uma coisa por commit, compilando a
-cada passo.
+Adiantada em 2026-11-21, antes da etapa 3, porque a placa ainda não foi comprada. Fica em um branch
+separado; o `main` continua sendo a base medida na etapa 1. Nada aqui toca o renderizador nem a
+captura.
 
-- Transmissão ao vivo: `AMF0`, `FLV`, `RTMPChunk`, `RTMPConnection`, `StreamVideoEncoder`,
-  `StreamAudio`, `MicInput`, `CameraFeed`, `StreamCompositor`, `StreamKeyStore`, `BroadcastSite`,
-  `Broadcaster`, `StreamSettingsView`, `Stream.metal`, a pasta `Tests/` e `scripts/check-stream.sh`.
-- Referências a remover junto: `Broadcaster` em `TweenApp.swift`, chaves `stream.*` em
-  `Settings.swift`, a seção de transmissão em `SettingsView.swift`, o selo LIVE em `Overlay.swift`,
-  `sharesFrames` em `Recorder.swift`.
-- Permissão de rede (`com.apple.security.network.client`) em `Config/Tween.entitlements` e os textos
-  de câmera e microfone em `Config/Info.plist`.
-- Decidir se a captura de janela (`WindowCapture.swift`) fica. Ela serve para testar sem placa.
+Feito, cada item em um commit e compilando no Air:
+
+- Transmissão ao vivo removida: RTMP, codificador, webcam, microfone, composição, chaves e a seção
+  de transmissão dos Ajustes, com as referências em `TweenApp.swift`, `Settings.swift`,
+  `SettingsView.swift`, `Overlay.swift` e `Recorder.swift`. O app caiu de cerca de 8.500 para 4.200
+  linhas de Swift.
+- Pasta `Tests/` e `scripts/check-stream.sh` removidos.
+- Permissão de rede retirada de `Config/Tween.entitlements`; textos de câmera e microfone em
+  `Config/Info.plist` ajustados.
+- A captura de janela (`WindowCapture.swift`) fica: serve para testar sem placa e para o
+  experimento com o Remote Play do Xbox.
+
+Falta:
+
 - Trocar o ícone e traduzir a interface.
+- Depois da etapa 3, repetir as medições de `docs/MEDICAO.md` neste branch antes de juntá-lo ao
+  `main`.
 
 ### Etapa 5: ajustes para o Air M2 e para o Series S
 
