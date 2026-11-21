@@ -6,7 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C1A400000000000000000020 /* InterpBench.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A400000000000000000021 /* InterpBench.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		C1A400000000000000000021 /* InterpBench.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = InterpBench.swift; path = tools/InterpBench.swift; sourceTree = "<group>"; };
+		C1A400000000000000000022 /* InterpBench */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = InterpBench; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1A400000000000000000001 /* Tween.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tween.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -31,6 +37,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C1A400000000000000000023 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -39,6 +52,7 @@
 			children = (
 				C1A400000000000000000002 /* Tween */,
 				C1A40000000000000000000C /* Config */,
+				C1A400000000000000000021 /* InterpBench.swift */,
 				C1A400000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -47,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				C1A400000000000000000001 /* Tween.app */,
+				C1A400000000000000000022 /* InterpBench */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,6 +90,24 @@
 			productName = Tween;
 			productReference = C1A400000000000000000001 /* Tween.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C1A400000000000000000024 /* InterpBench */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1A400000000000000000026 /* Build configuration list for PBXNativeTarget "InterpBench" */;
+			buildPhases = (
+				C1A400000000000000000025 /* Sources */,
+				C1A400000000000000000023 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InterpBench;
+			packageProductDependencies = (
+			);
+			productName = InterpBench;
+			productReference = C1A400000000000000000022 /* InterpBench */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -106,6 +139,7 @@
 			projectRoot = "";
 			targets = (
 				C1A400000000000000000006 /* Tween */,
+				C1A400000000000000000024 /* InterpBench */,
 			);
 		};
 /* End PBXProject section */
@@ -125,6 +159,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1A400000000000000000025 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1A400000000000000000020 /* InterpBench.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,6 +270,32 @@
 			};
 			name = Release;
 		};
+		C1A400000000000000000027 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C1A400000000000000000028 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -245,6 +313,15 @@
 			buildConfigurations = (
 				C1A400000000000000000010 /* Debug */,
 				C1A400000000000000000011 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1A400000000000000000026 /* Build configuration list for PBXNativeTarget "InterpBench" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1A400000000000000000027 /* Debug */,
+				C1A400000000000000000028 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
