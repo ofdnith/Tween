@@ -66,7 +66,7 @@ intermediário que vem antes dele.
 | `Tween/WindowCapture.swift` | Captura da janela de outro app (útil para testar sem placa) |
 | Demais arquivos em `Tween/` | Transmissão ao vivo, a remover na etapa 4 |
 | `Config/` | `Info.plist` e permissões |
-| `tools/InterpBench.swift` | Medição do interpolador, independente do app |
+| `tools/InterpBench/main.swift` | Medição do interpolador, independente do app |
 
 ## Regras que não podem regredir
 

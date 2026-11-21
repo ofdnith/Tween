@@ -22,7 +22,7 @@ controle e TV). O Tween não reduz esse número; a meta é somar o mínimo poss�
 
 - Código do Clarion 0.2.0 copiado e renomeado para Tween (`tools/import-upstream.sh`).
 - Geração de quadros ligada por padrão, modo Fast (quadros intermediários em 720p).
-- Documentação e ferramenta de medição (`tools/InterpBench.swift`) escritas.
+- Documentação e ferramenta de medição (`tools/InterpBench/main.swift`) escritas.
 - **Pendente:** nada disso foi compilado ainda.
 
 ### Etapa 1: compilar e medir no Air, sem placa

@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C1A400000000000000000020 /* InterpBench.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A400000000000000000021 /* InterpBench.swift */; };
+		C1A400000000000000000020 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A400000000000000000021 /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C1A400000000000000000021 /* InterpBench.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = InterpBench.swift; path = tools/InterpBench.swift; sourceTree = "<group>"; };
+		C1A400000000000000000021 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = main.swift; path = tools/InterpBench/main.swift; sourceTree = "<group>"; };
 		C1A400000000000000000022 /* InterpBench */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = InterpBench; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1A400000000000000000001 /* Tween.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tween.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -52,7 +52,7 @@
 			children = (
 				C1A400000000000000000002 /* Tween */,
 				C1A40000000000000000000C /* Config */,
-				C1A400000000000000000021 /* InterpBench.swift */,
+				C1A400000000000000000021 /* main.swift */,
 				C1A400000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -166,7 +166,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1A400000000000000000020 /* InterpBench.swift in Sources */,
+				C1A400000000000000000020 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
