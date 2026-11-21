@@ -25,11 +25,11 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Tween reads the video from your HDMI capture card, and your webcam when you add it to a stream.</string>
+	<string>Tween reads the video from your HDMI capture card.</string>
 	<key>NSCameraReactionEffectGesturesEnabledDefault</key>
 	<false/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Tween plays your capture card's game audio and, when you go live, sends your microphone to your stream.</string>
+	<string>Tween plays your capture card's game audio.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>
