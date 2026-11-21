@@ -4,7 +4,6 @@ import AppKit
 struct SettingsView: View {
     @ObservedObject var settings: AppSettings
     @ObservedObject var recorder: Recorder
-    let broadcaster: Broadcaster
     @ObservedObject var capture: CaptureManager
     @ObservedObject var windowCapture: WindowCaptureManager
     @ObservedObject var audio: AudioPassthrough
@@ -47,7 +46,6 @@ struct SettingsView: View {
                 if settings.source == .captureCard {
                     audioSection
                 }
-                StreamSettingsSection(settings: settings, broadcaster: broadcaster, camera: broadcaster.camera)
                 recordingSection
                 overlaySection
                 shortcutsSection
@@ -339,11 +337,8 @@ struct SettingsView: View {
             }
             .pickerStyle(.segmented)
 
-            noted("A square in the video's corner turns white while the centre of the picture is bright. Film the screen in slow motion to time it. Turns itself off after \(Int(AppSettings.latencyTestDuration / 60)) minutes. Not available while live: the square would be in the stream.") {
-                WhileLive(broadcaster: broadcaster) { live in
-                    Toggle("Latency test", isOn: $settings.latencyTest)
-                        .disabled(live)
-                }
+            noted("A square in the video's corner turns white while the centre of the picture is bright. Film the screen in slow motion to time it. Turns itself off after \(Int(AppSettings.latencyTestDuration / 60)) minutes.") {
+                Toggle("Latency test", isOn: $settings.latencyTest)
             }
         }
     }
@@ -364,7 +359,6 @@ struct SettingsView: View {
                 shortcut("P", "Take a screenshot")
                 shortcut("R", "Start / stop recording")
                 shortcut("L", "Latency test on / off")
-                shortcut("N", "Microphone on / off while live")
                 shortcut("⌘Q", "Quit")
             }
         }
@@ -388,13 +382,4 @@ struct SettingsView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
-}
-
-/// Content that depends on whether a stream is live. Observes the broadcaster itself, so its
-/// frequent updates redraw only this, not the whole panel.
-private struct WhileLive<Content: View>: View {
-    @ObservedObject var broadcaster: Broadcaster
-    @ViewBuilder let content: (Bool) -> Content
-
-    var body: some View { content(broadcaster.isLive) }
 }

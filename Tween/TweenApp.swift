@@ -45,12 +45,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let stats = StatsModel()
 
     private var renderer: Renderer?
-    private var broadcaster: Broadcaster?
-    // Who wants the renderer's frames and the source's sound; the sink and the sound are on while anyone does.
+    // The frame sink and the captured sound are on only while the recorder wants them.
     private var recorderWantsFrames = false
-    private var broadcasterWantsFrames = false
     private var recorderWantsAudio = false
-    private var broadcasterWantsAudio = false
     private let sourceGate = SourceGate()
     private var windowController: VideoWindowController?
     private var activeDisplay: DisplayInfo?
@@ -73,20 +70,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
         self.renderer = renderer
-        // Stream.metal is part of the app's default library.
-        guard let library = device.makeDefaultLibrary() else {
-            fail("Tween's shaders are missing.")
-            return
-        }
-        let broadcaster = Broadcaster(device: device, library: library)
-        self.broadcaster = broadcaster
-        // The card is never offered as a webcam.
-        capture.$activeDevice
-            .receive(on: DispatchQueue.main)
-            .sink { broadcaster.camera.excludedDeviceID = $0?.id }
-            .store(in: &cancellables)
-
-        let overlay = VideoOverlayRoot(settings: settings, ui: ui, stats: stats, recorder: recorder, broadcaster: broadcaster,
+        let overlay = VideoOverlayRoot(settings: settings, ui: ui, stats: stats, recorder: recorder,
                                        capture: capture,
                                        windowCapture: windowCapture, audio: audio,
                                        displays: displays, supportsMetalFX: renderer.upscaler.supportsMetalFX,
@@ -110,33 +94,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         windowCapture.onStopped = { renderer.clear() }
 
-        // Screenshots, recordings and the stream take the finished picture from the renderer, and the
+        // Screenshots and recordings take the finished picture from the renderer, and the
         // sound from whichever source is running.
         let recorder = recorder
         recorder.onWantsFrames = { [weak self] wanted in
             self?.recorderWantsFrames = wanted
             self?.updateFrameSink()
         }
-        broadcaster.onWantsFrames = { [weak self] wanted in
-            self?.broadcasterWantsFrames = wanted
-            self?.updateFrameSink()
-        }
         recorder.onWantsAudio = { [weak self] wanted in
             self?.recorderWantsAudio = wanted
             self?.updateCapturedAudio()
         }
-        broadcaster.onWantsAudio = { [weak self] wanted in
-            self?.broadcasterWantsAudio = wanted
-            self?.updateCapturedAudio()
-        }
-        windowCapture.onAudio = {
-            recorder.handle(audio: $0)
-            broadcaster.handle(gameAudio: $0)
-        }
-        audio.onSamples = {
-            recorder.handle(audio: $0, at: $1)
-            broadcaster.handle(gameAudio: $0, at: $1)
-        }
+        windowCapture.onAudio = { recorder.handle(audio: $0) }
+        audio.onSamples = { recorder.handle(audio: $0, at: $1) }
         capture.onResolved = { [weak self] deviceID, formatID in
             guard let self else { return }
             // Only a device the user picked is remembered (and follows the card to a new USB port);
@@ -170,52 +140,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         audio.apply(audioRequest)
     }
 
-    /// The sink is set only while someone wants frames (latency rule). The recorder draws its stats
-    /// on a copy from before the stream gets a frame until the stream has stopped.
+    /// The sink is set only while the recorder wants frames (latency rule).
     private func updateFrameSink() {
-        guard let renderer, let broadcaster else { return }
-        updateSharing()
+        guard let renderer else { return }
         let recorder = recorder
-        switch (recorderWantsFrames, broadcasterWantsFrames) {
-        case (false, false):
-            renderer.setFrameSink(nil)
-        case (true, false):
+        if recorderWantsFrames {
             renderer.setFrameSink { frame, time in recorder.handle(frame: frame, at: time) }
-        case (false, true):
-            renderer.setFrameSink { frame, time in broadcaster.handle(frame: frame, at: time) }
-        case (true, true):
-            renderer.setFrameSink { frame, time in
-                broadcaster.handle(frame: frame, at: time)
-                recorder.handle(frame: frame, at: time)
-            }
+        } else {
+            renderer.setFrameSink(nil)
         }
     }
 
-    private func updateSharing() {
-        recorder.sharesFrames = broadcasterWantsFrames || broadcaster?.isLive == true
-    }
-
     private func updateCapturedAudio() {
-        windowCapture.setCapturesAudio(recorderWantsAudio || broadcasterWantsAudio)
+        windowCapture.setCapturesAudio(recorderWantsAudio)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
-    /// A recording in progress has to be finished, or the file can't be played; a stream is ended
-    /// cleanly so the sites don't wait for it to come back.
+    /// A recording in progress has to be finished, or the file can't be played.
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        let live = broadcaster?.isLive == true
-        guard recorder.isRecording || live else { return .terminateNow }
-        let done = DispatchGroup()
-        if recorder.isRecording {
-            done.enter()
-            recorder.stop { done.leave() }
-        }
-        if live, let broadcaster {
-            done.enter()
-            broadcaster.end { done.leave() }
-        }
-        done.notify(queue: .main) { NSApp.reply(toApplicationShouldTerminate: true) }
+        guard recorder.isRecording else { return .terminateNow }
+        recorder.stop { NSApp.reply(toApplicationShouldTerminate: true) }
         return .terminateLater
     }
 
@@ -295,21 +240,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in self?.updateOverlayVisibility() }
             .store(in: &cancellables)
-
-        // The recorder may stop drawing on a copy only once the stream has stopped.
-        broadcaster?.$states
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.updateSharing() }
-            .store(in: &cancellables)
-
-        // The LIVE badge counts as something shown over the video.
-        if let broadcaster {
-            broadcaster.$states.map { _ in () }
-                .merge(with: broadcaster.$notice.map { _ in () })
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] in self?.updateOverlayVisibility() }
-                .store(in: &cancellables)
-        }
     }
 
     private func placeWindow() {
@@ -338,7 +268,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateOverlayVisibility() {
         windowController?.overlayVisible = settings.statsMode != .off || ui.showSettings || stats.statusMessage != nil
             || recorder.isRecording || recorder.notice != nil || settings.latencyTest
-            || broadcaster?.isLive == true || broadcaster?.notice != nil
     }
 
     // MARK: - Hotkeys
@@ -352,7 +281,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func handleKey(_ event: NSEvent) -> Bool {
         guard event.modifierFlags.intersection([.command, .control, .option]).isEmpty else { return false }
-        // Typing into a text field (a stream key, a server address) is not a shortcut.
+        // Typing into a text field is not a shortcut.
         if (event.window ?? NSApp.keyWindow)?.firstResponder is NSText { return false }
         switch event.keyCode {
         case 53: // Esc
@@ -368,7 +297,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // A held key repeats: without this, holding P saved a burst of screenshots and holding R
         // could start and stop a recording.
         let key = event.charactersIgnoringModifiers?.lowercased()
-        if event.isARepeat { return key.map { "omusfalprvn".contains($0) } ?? false }
+        if event.isARepeat { return key.map { "omusfalprv".contains($0) } ?? false }
         switch key {
         case "o": settings.statsMode = settings.statsMode.next
         case "m": settings.scalingMode = settings.scalingMode.next
@@ -376,12 +305,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         case "s": settings.sharpeningEnabled.toggle()
         case "f" where renderer?.supportsFrameGeneration == true: settings.frameGenerationEnabled.toggle()
         case "a": settings.audioEnabled.toggle()
-        // The test's square is part of the picture, so it would reach the stream.
-        case "l": if broadcaster?.isLive != true { settings.latencyTest.toggle() }
+        case "l": settings.latencyTest.toggle()
         case "p": recorder.takeScreenshot()
         case "r": recorder.toggleRecording()
         case "v": settings.displaySyncEnabled.toggle()
-        case "n": broadcaster?.toggleMicMute()
         default: return false
         }
         return true

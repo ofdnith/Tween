@@ -186,51 +186,12 @@ private struct BadgeStyle: ViewModifier {
     }
 }
 
-/// "LIVE 1:23" while streaming, "MIC OFF" while the microphone is muted, and the stream's short
-/// notes. Drawn over the video only, so it is never in the stream.
-struct LiveBadge: View {
-    @ObservedObject var broadcaster: Broadcaster
-
-    var body: some View {
-        VStack(spacing: 8) {
-            if broadcaster.isLive {
-                if let start = broadcaster.startedAt {
-                    // The timeline exists only once a site is live, so nothing ticks otherwise.
-                    TimelineView(.periodic(from: start, by: 1)) { context in
-                        let seconds = max(0, Int(context.date.timeIntervalSince(start)))
-                        HStack(spacing: 8) {
-                            Circle().fill(.red).frame(width: 10, height: 10)
-                            Text(Self.elapsed(seconds))
-                        }
-                    }
-                    .modifier(BadgeStyle())
-                } else {
-                    Text("CONNECTING").modifier(BadgeStyle())
-                }
-                if broadcaster.micMuted {
-                    Text("MIC OFF").modifier(BadgeStyle())
-                }
-            }
-            if let notice = broadcaster.notice {
-                Text(notice).modifier(BadgeStyle())
-            }
-        }
-    }
-
-    private static func elapsed(_ seconds: Int) -> String {
-        seconds >= 3600
-            ? String(format: "LIVE %d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60)
-            : String(format: "LIVE %d:%02d", seconds / 60, seconds % 60)
-    }
-}
-
 /// Everything drawn over the video: stats (top-left), badges (top), status (center), settings (right).
 struct VideoOverlayRoot: View {
     @ObservedObject var settings: AppSettings
     @ObservedObject var ui: UIState
     @ObservedObject var stats: StatsModel
     @ObservedObject var recorder: Recorder
-    let broadcaster: Broadcaster
     let capture: CaptureManager
     let windowCapture: WindowCaptureManager
     let audio: AudioPassthrough
@@ -248,8 +209,6 @@ struct VideoOverlayRoot: View {
                     .padding(24)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
-            // The live badge watches the broadcaster itself and is empty when not live, so this view's
-            // body isn't redrawn for every broadcaster update.
             VStack(spacing: 8) {
                 if settings.latencyTest {
                     // The test's square is part of the picture, so say that it is on.
@@ -258,12 +217,11 @@ struct VideoOverlayRoot: View {
                 if recorder.isRecording || recorder.notice != nil {
                     RecorderBadge(recorder: recorder)
                 }
-                LiveBadge(broadcaster: broadcaster)
             }
             .padding(24)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             if ui.showSettings {
-                SettingsView(settings: settings, recorder: recorder, broadcaster: broadcaster, capture: capture, windowCapture: windowCapture, audio: audio, displays: displays,
+                SettingsView(settings: settings, recorder: recorder, capture: capture, windowCapture: windowCapture, audio: audio, displays: displays,
                              supportsMetalFX: supportsMetalFX, supportsFrameGeneration: supportsFrameGeneration) {
                     ui.showSettings = false
                 }

@@ -20,13 +20,6 @@ final class Recorder: ObservableObject {
     var onWantsFrames: ((Bool) -> Void)?
     /// Main thread: ask the source for its sound while recording.
     var onWantsAudio: ((Bool) -> Void)?
-    /// Main thread. While true the frames also go to the stream, so the stats are drawn on a copy.
-    var sharesFrames = false {
-        didSet {
-            let shared = sharesFrames
-            queue.async { self.sharing = shared }
-        }
-    }
 
     private let queue = DispatchQueue(label: "tween.recorder", qos: .userInitiated)
     private var noticeTimer: Timer?
@@ -41,8 +34,6 @@ final class Recorder: ObservableObject {
     private var statLines: [StatLine]?
     private var statsImage: (lines: [StatLine], scale: CGFloat, image: CGImage)?
     private var wantsScreenshot = false
-    private var sharing = false
-    private var copyPool: CVPixelBufferPool?
     private var recording = false
     private var writer: AVAssetWriter?
     private var videoInput: AVAssetWriterInput?
@@ -139,48 +130,9 @@ final class Recorder: ObservableObject {
         DispatchQueue.main.async { self.onWantsFrames?(wants) }
     }
 
-    /// The buffer to draw the stats on: the frame itself, or a copy of it when someone else uses
-    /// the frame too. Nil when the copy can't be made.
-    static func drawingTarget(for frame: CVPixelBuffer, shared: Bool, pool: inout CVPixelBufferPool?) -> CVPixelBuffer? {
-        guard shared else { return frame }
-        let width = CVPixelBufferGetWidth(frame), height = CVPixelBufferGetHeight(frame)
-        let format = CVPixelBufferGetPixelFormatType(frame)
-        if let existing = pool,
-           let attributes = CVPixelBufferPoolGetPixelBufferAttributes(existing) as? [CFString: Any],
-           attributes[kCVPixelBufferWidthKey] as? Int != width || attributes[kCVPixelBufferHeightKey] as? Int != height
-            || attributes[kCVPixelBufferPixelFormatTypeKey] as? OSType != format {
-            pool = nil
-        }
-        if pool == nil {
-            let attributes: [CFString: Any] = [
-                kCVPixelBufferPixelFormatTypeKey: format,
-                kCVPixelBufferWidthKey: width, kCVPixelBufferHeightKey: height,
-                kCVPixelBufferIOSurfacePropertiesKey: [CFString: Any]()]
-            CVPixelBufferPoolCreate(kCFAllocatorDefault, nil, attributes as CFDictionary, &pool)
-        }
-        guard let pool, !CVPixelBufferIsPlanar(frame) else { return nil }
-        var copy: CVPixelBuffer?
-        CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, pool, &copy)
-        guard let copy, CVPixelBufferLockBaseAddress(frame, .readOnly) == kCVReturnSuccess else { return nil }
-        defer { CVPixelBufferUnlockBaseAddress(frame, .readOnly) }
-        guard CVPixelBufferLockBaseAddress(copy, []) == kCVReturnSuccess else { return nil }
-        defer { CVPixelBufferUnlockBaseAddress(copy, []) }
-        guard let source = CVPixelBufferGetBaseAddress(frame), let target = CVPixelBufferGetBaseAddress(copy) else { return nil }
-        let sourceStride = CVPixelBufferGetBytesPerRow(frame), targetStride = CVPixelBufferGetBytesPerRow(copy)
-        let rowBytes = min(sourceStride, targetStride)
-        for y in 0..<height {
-            memcpy(target + y * targetStride, source + y * sourceStride, rowBytes)
-        }
-        return copy
-    }
-
     private func process(_ frame: CVPixelBuffer, at time: CMTime) {
-        var frame = frame
-        if let statLines, wantsScreenshot || recording,
-           let target = Self.drawingTarget(for: frame, shared: sharing, pool: &copyPool) {
-            // The stream must never show the stats: without a copy they are left out.
-            drawStats(statLines, on: target)
-            frame = target
+        if let statLines, wantsScreenshot || recording {
+            drawStats(statLines, on: frame)
         }
         if wantsScreenshot {
             wantsScreenshot = false

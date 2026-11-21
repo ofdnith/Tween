@@ -80,19 +80,6 @@ final class AppSettings: ObservableObject {
         static let audioEnabled = "audio.enabled"
         static let audioDeviceID = "audio.deviceID"
         static let audioVolume = "audio.volume"
-        static func streamEnabled(_ site: StreamSite) -> String { "stream.\(site.rawValue).enabled" }
-        static func streamServer(_ site: StreamSite) -> String { "stream.\(site.rawValue).server" }
-        static func streamBitrate(_ site: StreamSite) -> String { "stream.\(site.rawValue).bitrate" }
-        static let streamYouTubeQuality = "stream.youtube.quality"
-        static let streamGameVolume = "stream.gameVolume"
-        static let micEnabled = "stream.mic.enabled"
-        static let micDeviceID = "stream.mic.deviceID"
-        static let micVolume = "stream.mic.volume"
-        static let micRemoveGameSound = "stream.mic.removeGameSound"
-        static let cameraEnabled = "stream.camera.enabled"
-        static let cameraDeviceID = "stream.camera.deviceID"
-        static let cameraCorner = "stream.camera.corner"
-        static let cameraSize = "stream.camera.size"
     }
 
     private let defaults: UserDefaults
@@ -135,37 +122,6 @@ final class AppSettings: ObservableObject {
     @Published var audioDeviceID: String? { didSet { defaults.set(audioDeviceID, forKey: Key.audioDeviceID) } }
     /// 0…1.
     @Published var audioVolume: Double { didSet { defaults.set(audioVolume, forKey: Key.audioVolume) } }
-    /// Stream keys are not settings: they live in files of their own (`StreamKeyStore`).
-    @Published var streamEnabled: [StreamSite: Bool] {
-        didSet { StreamSite.allCases.forEach { defaults.set(streamEnabled[$0] ?? false, forKey: Key.streamEnabled($0)) } }
-    }
-    /// Empty = the site's default server.
-    @Published var streamServer: [StreamSite: String] {
-        didSet { StreamSite.allCases.forEach { defaults.set(streamServer[$0] ?? "", forKey: Key.streamServer($0)) } }
-    }
-    /// Bits per second; 0 = the site's default for the canvas.
-    @Published var streamBitrate: [StreamSite: Int] {
-        didSet { StreamSite.allCases.forEach { defaults.set(streamBitrate[$0] ?? 0, forKey: Key.streamBitrate($0)) } }
-    }
-    @Published var streamYouTubeQuality: StreamQuality {
-        didSet { defaults.set(streamYouTubeQuality.rawValue, forKey: Key.streamYouTubeQuality) }
-    }
-    /// 0…1.
-    @Published var streamGameVolume: Double { didSet { defaults.set(streamGameVolume, forKey: Key.streamGameVolume) } }
-    @Published var micEnabled: Bool { didSet { defaults.set(micEnabled, forKey: Key.micEnabled) } }
-    /// nil = the system's default input.
-    @Published var micDeviceID: String? { didSet { defaults.set(micDeviceID, forKey: Key.micDeviceID) } }
-    /// 0…1.
-    @Published var micVolume: Double { didSet { defaults.set(micVolume, forKey: Key.micVolume) } }
-    /// Voice processing cancels the game's sound out of the microphone, for when it plays from speakers.
-    @Published var micRemoveGameSound: Bool { didSet { defaults.set(micRemoveGameSound, forKey: Key.micRemoveGameSound) } }
-    /// Off until the owner turns it on; going live never does.
-    @Published var cameraEnabled: Bool { didSet { defaults.set(cameraEnabled, forKey: Key.cameraEnabled) } }
-    /// nil = the first built-in or Continuity camera.
-    @Published var cameraDeviceID: String? { didSet { defaults.set(cameraDeviceID, forKey: Key.cameraDeviceID) } }
-    @Published var cameraCorner: StreamCorner { didSet { defaults.set(cameraCorner.rawValue, forKey: Key.cameraCorner) } }
-    @Published var cameraSize: StreamCameraSize { didSet { defaults.set(cameraSize.rawValue, forKey: Key.cameraSize) } }
-    var cameraLayout: CameraLayout { CameraLayout(corner: cameraCorner, size: cameraSize) }
     /// A measuring aid, so it always starts off, and turns itself off again: its square is part of
     /// the picture and ends up in recordings when forgotten.
     @Published var latencyTest = false {
@@ -228,34 +184,5 @@ final class AppSettings: ObservableObject {
         audioEnabled = defaults.object(forKey: Key.audioEnabled) as? Bool ?? true
         audioDeviceID = defaults.string(forKey: Key.audioDeviceID)
         audioVolume = defaults.object(forKey: Key.audioVolume) as? Double ?? 1
-        streamEnabled = Dictionary(uniqueKeysWithValues: StreamSite.allCases.map { ($0, defaults.bool(forKey: Key.streamEnabled($0))) })
-        streamServer = Dictionary(uniqueKeysWithValues: StreamSite.allCases.map { ($0, defaults.string(forKey: Key.streamServer($0)) ?? "") })
-        streamBitrate = Dictionary(uniqueKeysWithValues: StreamSite.allCases.map { ($0, max(0, defaults.integer(forKey: Key.streamBitrate($0)))) })
-        streamYouTubeQuality = StreamQuality(rawValue: defaults.object(forKey: Key.streamYouTubeQuality) as? Int ?? 1440) ?? .p1440
-        streamGameVolume = defaults.object(forKey: Key.streamGameVolume) as? Double ?? 1
-        micEnabled = defaults.object(forKey: Key.micEnabled) as? Bool ?? true
-        micDeviceID = defaults.string(forKey: Key.micDeviceID)
-        micVolume = defaults.object(forKey: Key.micVolume) as? Double ?? 1
-        micRemoveGameSound = defaults.object(forKey: Key.micRemoveGameSound) as? Bool ?? true
-        cameraEnabled = defaults.bool(forKey: Key.cameraEnabled)
-        cameraDeviceID = defaults.string(forKey: Key.cameraDeviceID)
-        cameraCorner = defaults.string(forKey: Key.cameraCorner).flatMap(StreamCorner.init(rawValue:)) ?? .bottomRight
-        cameraSize = defaults.string(forKey: Key.cameraSize).flatMap(StreamCameraSize.init(rawValue:)) ?? .medium
-    }
-
-    /// Reads the stream keys: call it only when going live.
-    func makeStreamConfig() -> StreamConfig {
-        let sites = StreamSite.allCases.filter { streamEnabled[$0] == true }.map { site -> StreamSiteConfig in
-            let server = (streamServer[site] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            let read = StreamKeyStore.read(for: site)
-            return StreamSiteConfig(site: site, server: server.isEmpty ? site.defaultServer : server,
-                                    key: read.key ?? "",
-                                    quality: site == .youtube ? streamYouTubeQuality : .p1080,
-                                    bitrate: streamBitrate[site] ?? 0,
-                                    keyUnreadable: read.unreadable)
-        }
-        return StreamConfig(sites: sites, gameVolume: Float(streamGameVolume),
-                            camera: cameraEnabled ? (cameraDeviceID, cameraLayout) : nil,
-                            mic: micEnabled ? (micDeviceID, Float(micVolume), micRemoveGameSound) : nil)
     }
 }
