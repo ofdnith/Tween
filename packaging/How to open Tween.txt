@@ -1,0 +1,63 @@
+TWEEN
+Shows your PlayStation (or any console) full screen on your Mac, sharper and smoother.
+Works with an HDMI capture card, or with the PS Remote Play app.
+
+Needs: a Mac with macOS 14 (Sonoma) or newer. Best on Apple Silicon (M1 or newer).
+
+
+1. INSTALL
+   Drag Tween into your Applications folder.
+
+
+2. OPEN IT THE FIRST TIME
+   Tween isn't from the App Store, so macOS blocks it the first time. This is expected.
+
+   a. Double-click Tween. macOS says it can't verify the app. Click Done (not Move to Bin).
+   b. Open System Settings > Privacy & Security.
+   c. Scroll down. Next to "Tween was blocked", click Open Anyway, then enter your Mac password.
+   d. Click Open. From now on it opens normally.
+
+
+3. PICK WHERE THE PICTURE COMES FROM
+   Tween opens full screen. Press Tab to open its settings, and under Source choose:
+
+   - Capture card: for an HDMI capture card plugged into your Mac.
+     Allow Camera (the video) and Microphone (the game sound) when asked.
+
+   - Remote Play app: for the PS Remote Play app on this Mac (no capture card needed).
+     Start streaming in PS Remote Play first. Allow Screen Recording when asked,
+     then click Quit & Reopen. Tween finds the Remote Play window by itself.
+     Keep PS Remote Play open; it can sit behind Tween. Game sound comes from Remote Play.
+
+
+4. KEYS
+   Tab   settings
+   O     stats: off / compact / full
+   U     sharper upscaling on / off
+   S     sharpening on / off
+   F     smooth 60 fps on / off (macOS 26 or newer; adds about 0.04 s of delay, so leave it off for fast games)
+   V     V-Sync on / off (off = less delay, may tear)
+   M     fit / fill / stretch
+   P     take a screenshot (saved in Pictures > Tween)
+   R     start / stop recording, with sound (saved in Movies > Tween)
+   N     microphone on / off while you are live
+   ⌘Q    quit
+
+
+5. GO LIVE ON YOUTUBE OR TWITCH
+   Press Tab and scroll to Live stream. Turn on YouTube, Twitch or both, paste the stream key
+   from the site, and click Go live. Click End stream to stop. No key on the keyboard starts a stream.
+
+   - Viewers see the picture Tween shows, with the game sound. You can add your microphone and
+     a small webcam picture in a corner; the webcam is never shown on your own screen.
+   - Set the title and who can watch on YouTube or Twitch itself.
+   - Your stream key is saved on this Mac in a file only your account can read. It is not encrypted.
+   - With a capture card, viewers hear the game only while "Play the capture card's sound" is on.
+   - If the game feels slower while you are live with F on, set In-between frames to Fast.
+
+
+6. TIPS
+   - For the least delay, leave F off and connect your PlayStation and Mac by ethernet cable.
+   - If the picture freezes in Remote Play mode, move the PS Remote Play window to another screen.
+   - If something says access is off: System Settings > Privacy & Security, find the right
+     section (Camera, Microphone or Screen & System Audio Recording), turn Tween on, and reopen it.

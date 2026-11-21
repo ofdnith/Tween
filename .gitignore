@@ -1,0 +1,19 @@
+# Segredos
+.env*
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Exportações
+*.xcarchive
+*.dmg
+*.zip
+export/
+
+# macOS
+.DS_Store
