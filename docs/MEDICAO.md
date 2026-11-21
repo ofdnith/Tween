@@ -85,7 +85,18 @@ Energia desligado):
 
 | Data | Tamanho | Minuto em que saiu de nominal | p95 nos 5 min iniciais | p95 nos 5 min finais | Veredito |
 |---|---|---|---|---|---|
-| | 1280×720 | | | | |
+| 2026-11-21 | 1280×720 | não saiu de `fair` (começou em `fair`) | 13,0 (pior janela) | 12,8 (pior janela) | CABE |
+
+Notas do teste de 2026-11-21 (180 janelas de 10 s, `docs/medicoes/termico-720p.csv`):
+
+- O estado térmico ficou em `fair` do começo ao fim, com uma passagem por `nominal` entre os minutos
+  27 e 29. Nunca chegou a `serious`.
+- O p95 não subiu com o tempo: a pior janela de cada bloco de 5 minutos ficou entre 12,8 e 15,3 ms,
+  e a média do p95 entre 9,1 e 10,1 ms. A pior janela do teste foi de 15,3 ms, no minuto 10 a 15.
+- Houve quadros isolados lentos: máximos de 34 a 62 ms em algumas janelas. Os três maiores (54 a
+  62 ms) foram no primeiro minuto, enquanto o Xcode e o git eram usados no mesmo Mac. Um quadro acima
+  de 33 ms é um quadro gerado perdido; falta contar quantos são com o Mac em repouso.
+- Temperatura ambiente não anotada. O Mac estava em uso leve (navegador aberto) durante o teste.
 
 ### Atraso da captura até a tela
 

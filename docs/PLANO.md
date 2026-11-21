@@ -23,9 +23,8 @@ controle e TV). O Tween não reduz esse número; a meta é somar o mínimo poss�
 - Código do Clarion 0.2.0 copiado e renomeado para Tween (`tools/import-upstream.sh`).
 - Geração de quadros ligada por padrão, modo Fast (quadros intermediários em 720p).
 - Documentação e ferramenta de medição (`tools/InterpBench/main.swift`) escritas.
-- **Pendente:** nada disso foi compilado ainda.
 
-### Etapa 1: compilar e medir no Air, sem placa
+### Etapa 1: compilar e medir no Air, sem placa (concluída em 2026-11-21)
 
 1. Instalar o Xcode e compilar o app (`docs/SETUP.md`).
 2. Corrigir o que a renomeação tiver quebrado, se algo quebrar.
@@ -36,6 +35,11 @@ controle e TV). O Tween não reduz esse número; a meta é somar o mínimo poss�
 30 minutos.
 **Para se:** 720p não cabe em 20 ms. Nesse caso o Air M2 não sustenta a abordagem e não vale comprar
 a placa.
+
+**Resultado:** seguiu. O app compilou sem correções e abre. Veredito CABE em 1280×720 (p95 de 13,2 ms
+em 60 s; pior janela de 15,3 ms em 30 minutos). 1080p não gerou saída no bench e ficou para
+investigar; não bloqueia, porque o padrão é 720p. Pelo Xcode, o bench roda pelos schemes
+`InterpBench`, `InterpBench-Termico` e `InterpBench-1080p`.
 
 ### Etapa 2: comprar a placa de captura
 

@@ -9,10 +9,10 @@ Veja [Créditos](#créditos).
 
 ## Estado
 
-**Etapa 0 concluída: base importada, ainda não compilada.** O código foi copiado do Clarion e
-renomeado de forma mecânica em uma máquina sem Xcode. O primeiro passo é compilar no Mac
-(`docs/SETUP.md`) e rodar a medição da etapa 1 (`docs/MEDICAO.md`). O roteiro completo está em
-`docs/PLANO.md`.
+**Etapa 1 concluída em 2026-11-21: o app compila e abre no Air M2, e o interpolador cabe no orçamento
+em 720p.** No bench, o quadro gerado em 1280×720 levou 6,8 ms (p50) e 13,2 ms (p95); no teste de 30
+minutos, nenhuma janela de 10 s passou de 15,3 ms. Os números estão em `docs/MEDICAO.md`. O próximo
+passo é a etapa 2 (comprar a placa MS2130). O roteiro completo está em `docs/PLANO.md`.
 
 ## O que esperar
 
